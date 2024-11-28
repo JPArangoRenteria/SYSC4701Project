@@ -1,15 +1,24 @@
 #FROM python:3.8-slim
 FROM ubuntu:20.04
+
 # Install dependencies to set up virtual environment
 WORKDIR /app
+
+# Install tzdata first to ensure time zone setup works
+RUN apt-get update && apt-get install -y tzdata
+
+# Set the time zone to UTC
 RUN ln -fs /usr/share/zoneinfo/UTC /etc/localtime && dpkg-reconfigure --frontend noninteractive tzdata
+
+# Install other dependencies
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-venv \
     python3-pip \
     wireshark \
     && apt-get clean
-    
+
+# Set up virtual environment
 RUN python3 -m venv /venv
 
 # Activate the virtual environment
@@ -25,7 +34,6 @@ RUN pip install pyshark
 #RUN pip install csv
 RUN pip install argparse
 RUN pip install datetime
-
 
 # Copy the Ryu controller script and other necessary scripts into the container
 COPY ryu_controller.py /app/ryu_controller.py
